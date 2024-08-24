@@ -2,14 +2,14 @@ from ..utils import db
 from enum import Enum
 from datetime import datetime
 
-class Sizes:
+class Sizes(Enum):
   SMALL ='small'
   MEDIUM ='medium'
   LARGE ='large'
   EXTRA_LARGE ='extra_large'
 
 
-class OrderStatus:
+class OrderStatus(Enum):
   PENDING='pending'
   IN_TRANSIT ='in_transit'
   DELIVERED ='delivered'
@@ -18,10 +18,10 @@ class OrderStatus:
 class Order(db.Model):
   __tablename__ = 'orders'
   id=db.Column(db.Integer(), primary_key=True)
-  size=db.column(db.Enum(Sizes),default=Sizes.SMALL)
-  order_status=db.column(db.Enum(OrderStatus),default=OrderStatus.PENDING)
-  flavor=db.column(db.String(), nullable=False)
-  date_created=db.column(db.DateTime(),default=datetime.utc)
+  size=db.Column(db.Enum(Sizes), default=Sizes.SMALL)
+  order_status=db.Column(db.Enum(OrderStatus),default=OrderStatus.PENDING)
+  flavor=db.Column(db.String(), nullable=False)
+  date_created=db.Column(db.DateTime(),default=datetime.utcnow)
   user=db.Column(db.Integer(),db.ForeignKey('users.id'), nullable=False)
 
   def __rep__(self):
