@@ -8,8 +8,17 @@ class User(db.Model):
   password_hash=db.Column(db.String(100), nullable=False)
   is_staff=db.Column(db.Boolean(), default=False)
   is_active=db.Column(db.Boolean(), default=True)
-  orders=db.relationship('Orders',backref='customer',lazy=True)
+  orders=db.relationship('Order',backref='user_ref',lazy=True)
 
 
   def __repr__(self):
     return f"<User {self.username}>"
+
+
+  def save(self):
+    db.session.add(self)
+    db.session.commit()
+
+  @classmethod
+  def get_by_id(cls, id):
+    return cls.query.get_or_404(id)
