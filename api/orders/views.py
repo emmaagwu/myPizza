@@ -1,10 +1,9 @@
 from flask_restx import Namespace,Resource,fields
 from flask_jwt_extended import jwt_required,get_jwt_identity
-from enum import Enum
 from ..models.orders import Order
 from ..models.users import User
 from http import HTTPStatus
-# from ..auth.views import user_model
+from ..utils.db import db
 
 
 
@@ -46,7 +45,6 @@ class OrderGetCreate(Resource):
       Place a new order
     """
 
-
     username=get_jwt_identity()
 
     current_user=User.query.filter_by(username=username).first()
@@ -78,11 +76,25 @@ class GetUpdateDelete(Resource):
 
     return order, HTTPStatus.OK
   
+  @order_namespace.expect(order_model)
+  @order_namespace.marshal_with(order_model)
+  @jwt_required()
   def put(self,order_id):
     """
       Update an order by order_id
     """
-    pass
+
+    order_to_update = Order.get_by_id(order_id)
+
+    data=order_namespace.payload
+
+    order_to_update.quantity=data['quantity']
+    order_to_update.size=data['size']
+    order_to_update.flavour=data['flavour']
+
+    db.session.commit()
+
+    return order_to_update, HTTPStatus.OK
 
   def delete(self,order_id):
     """
@@ -93,11 +105,16 @@ class GetUpdateDelete(Resource):
 @order_namespace.route('/user/<int:user_id>/order/<int:order_id>')
 class GetUpdateDeleteForUser(Resource):
 
+  @order_namespace.marshal_with(order_model)
+  @jwt_required()
   def get(self,user_id, order_id):
     """
       Get user's specific order
     """
-    pass
+    order = Order.query.filter_by(id=order_id, user=user_id).first()
+
+    return order, HTTPStatus.OK
+
 
 @order_namespace.route('/user/<int:user_id>/orders')
 class GetUserOrders(Resource):

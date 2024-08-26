@@ -1,4 +1,4 @@
-from ..utils import db
+from ..utils.db import db
 from enum import Enum
 
 

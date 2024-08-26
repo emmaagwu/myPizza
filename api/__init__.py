@@ -3,7 +3,7 @@ from flask_restx import Api
 from .orders.views import order_namespace
 from .auth.views import auth_namespace
 from .config.config import config_dict
-from .utils import db
+from .utils.db import db
 from .models.orders import Order
 from .models.users import User
 from flask_migrate import Migrate
