@@ -18,10 +18,15 @@ class DevConfig(Config):
   DEBUG = True
 
 class TestConfig(Config):
-  pass
+  TESTING=True
+  SQLALCHEMY_DATABASE_URI = 'sqlite://' # in-memory database
+  SQLALCHEMY_TRACK_MODIFICATIONS = False
+  SQLALCHEMY_ECHO=True
 
 class ProdConfig(Config):
-  pass
+  SQLALCHEMY_DATABASE_URI =config('DATABASE_URL')
+  SQLALCHEMY_TRACK_MODIFICATIONS = False
+  DEBUG = config('DEBUG',cast=bool)
 
 config_dict = {
   'dev': DevConfig,

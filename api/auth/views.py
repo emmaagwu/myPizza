@@ -5,6 +5,7 @@ from werkzeug.security import generate_password_hash,check_password_hash
 from http import HTTPStatus
 from flask_jwt_extended import (create_access_token,create_refresh_token,
                                 jwt_required,get_jwt_identity,)
+from werkzeug.exceptions import Conflict,BadRequest
 
 auth_namespace = Namespace('auth', description='a namespace for authentication')
 
@@ -47,17 +48,21 @@ class SignUp(Resource):
     """
     data = request.get_json()
 
-    new_user=User(
-      username=data.get('username'),
-      email=data.get('email'),
-      password_hash=generate_password_hash(data.get('password')) # TODO: hash password
-    )
+    try:
 
-    new_user.save()
-
-    return new_user, HTTPStatus.CREATED
+      new_user=User(
+        username=data.get('username'),
+        email=data.get('email'),
+        password_hash=generate_password_hash(data.get('password')) # TODO: hash password
+      )
 
 
+      new_user.save()
+
+      return new_user, HTTPStatus.CREATED
+
+    except Exception:
+      raise Conflict(f"User with email {data.get('email')} already exists") from None
 
 @auth_namespace.route('/login')
 class Login(Resource):
@@ -81,9 +86,11 @@ class Login(Resource):
       response={
         'access_token':access_token,
         'refresh_token':refresh_token
-      }
+      }      
 
       return response, HTTPStatus.OK
+    
+    raise BadRequest("Invalid Username or password")
 
 @auth_namespace.route('/refresh')
 class Refresh(Resource):
